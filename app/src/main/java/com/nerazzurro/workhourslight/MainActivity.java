@@ -47,18 +47,21 @@ public class MainActivity extends AppCompatActivity {
         mResult = findViewById(R.id.activity_main_text_result);
         mFilledBlanksNumber = 0;
 
-        List<EditText> champs = Arrays.asList(mStartAM, mStopAM, mStartPM, mStopPM);
-
-        for (int i = 0; i < champs.size(); i++) {
-            toClock(champs.get(i));
-            if(CheckTimeFields(champs.get(i))) mFilledBlanksNumber++;
-        }
-
+        toClock(mStartAM);
+        toClock(mStopAM);
+        toClock(mStartPM);
+        toClock(mStopPM);
 
         mCalculate.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
+
+                List<EditText> champs = Arrays.asList(mStartAM, mStopAM, mStartPM, mStopPM);
+
+                if(!CheckTimeFields(champs)){
+                    return;
+                }
 
                 LocalTime startAM = LocalTime.parse(mStartAM.getText().toString());
                 LocalTime stopAM = LocalTime.parse(mStopAM.getText().toString());
@@ -94,10 +97,18 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private boolean CheckTimeFields(EditText time) {
-        if (TextUtils.isEmpty(time.getText())) {
+    private boolean CheckTimeFields(List<EditText> times) {
+        int champsManquants = 0;
+        for (int i = 0; i < times.size(); i++) {
+            if (TextUtils.isEmpty(times.get(i).getText())) {
+                times.get(i).setError("This blank is to be required!");
+                champsManquants++;
+            }
+        }
+
+        if(champsManquants > 0){
             Toast.makeText(this, "Tous les champs doivent être renseignés.", Toast.LENGTH_SHORT).show();
-            time.setError("All blanks to be required!");
+            return false;
         }
         return true;
     }
